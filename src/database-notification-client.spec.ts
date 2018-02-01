@@ -26,6 +26,12 @@ test("DatabaseNotificationClient", t =>
                     { channel: "one", payload: { a: "b" } },
                 );
 
+                await pool.query(`SELECT pg_notify('one', 'errr');`);
+                t.deepEqual(
+                    await ch.receive(),
+                    { channel: "one", payload: null },
+                );
+
             },
         ),
     ),
