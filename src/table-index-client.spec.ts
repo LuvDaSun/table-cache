@@ -28,12 +28,13 @@ END;
 $BODY$;
 
 CREATE TABLE public.one(
+    cluster INT NOT NULL,
     id SERIAL PRIMARY KEY,
     name TEXT NOT NULL
 );
 
-INSERT INTO public.one(name)
-VALUES('one'), ('two');
+INSERT INTO public.one(cluster, name)
+VALUES(100, 'one'), (200, 'two');
 
 CREATE TRIGGER notify_trg
 AFTER INSERT OR UPDATE OR DELETE
@@ -43,6 +44,7 @@ EXECUTE PROCEDURE public.notify_trg('row');
 `;
 
 interface OneTableRow {
+    cluster: number;
     id: number;
     name: string;
 }
@@ -57,8 +59,8 @@ interface OneIndexState {
     [id: number]: OneTableRow;
 }
 
-// tslint:disable-next-line:no-empty-interface
 interface OneIndexShard {
+    cluster: number;
 }
 
 const OneIndexDescriptor: IndexDescriptor<
@@ -68,8 +70,8 @@ const OneIndexDescriptor: IndexDescriptor<
         schema: "public",
         table: "one",
         path: ["id"],
-        makeRowFilter: shard => ({}),
-        makeShardKey: shard => [],
+        makeRowFilter: ({ cluster }) => ({ cluster }),
+        makeShardKey: ({ cluster }) => [cluster],
     };
 
 test("TableDataClient", t =>
@@ -81,25 +83,24 @@ test("TableDataClient", t =>
                         TableIndexClient.create(
                             tdp,
                             OneIndexDescriptor,
-                            {},
+                            { cluster: 100 },
                         ),
                         async tic => {
                             const ch = new Channel();
                             tic.listen(patch => ch.send(patch));
 
                             t.deepEqual(tic.state, {
-                                1: { id: 1, name: "one" },
-                                2: { id: 2, name: "two" },
+                                1: { cluster: 100, id: 1, name: "one" },
                             });
 
                             await pool.query(`
-                            INSERT INTO public.one(name)
-                            VALUES('three')
+                            INSERT INTO public.one(cluster, name)
+                            VALUES(100, 'three')
                             `);
                             t.deepEqual(
                                 await ch.receive(),
                                 {
-                                    3: { id: 3, name: "three" },
+                                    3: { cluster: 100, id: 3, name: "three" },
                                 },
                             );
 
@@ -111,7 +112,7 @@ test("TableDataClient", t =>
                             t.deepEqual(
                                 await ch.receive(),
                                 {
-                                    1: { id: 1, name: "four" },
+                                    1: { cluster: 100, id: 1, name: "four" },
                                 },
                             );
 
@@ -128,8 +129,37 @@ test("TableDataClient", t =>
 
                             t.deepEqual(tic.state, {
                                 1: null,
-                                2: { id: 2, name: "two" },
-                                3: { id: 3, name: "three" },
+                                3: { cluster: 100, id: 3, name: "three" },
+                            });
+
+                            await pool.query(`
+                            UPDATE public.one
+                            SET cluster = 100
+                            WHERE id = 2
+                            `);
+                            t.deepEqual(
+                                await ch.receive(),
+                                {
+                                    2: { cluster: 100, id: 2, name: "two" },
+                                },
+                            );
+
+                            await pool.query(`
+                            UPDATE public.one
+                            SET cluster = 200
+                            WHERE id = 3
+                            `);
+                            t.deepEqual(
+                                await ch.receive(),
+                                {
+                                    3: null,
+                                },
+                            );
+
+                            t.deepEqual(tic.state, {
+                                1: null,
+                                2: { cluster: 100, id: 2, name: "two" },
+                                3: null,
                             });
 
                         },
