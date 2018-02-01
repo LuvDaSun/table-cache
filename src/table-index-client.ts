@@ -115,16 +115,16 @@ function resolveIndexDescriptorPath<TRow>(
     throw new Error(`invalid path ${path}`);
 }
 
-function resolveIndexDescriptorRowFilter<TShard>(
+function resolveIndexDescriptorRowFilter<TShard, TRow>(
     shard: TShard,
-    rowFilter?: IndexDescriptorRowFilter<TShard>,
-): RowFilter<TShard> | Partial<TShard> {
+    rowFilter?: IndexDescriptorRowFilter<TShard, TRow>,
+): RowFilter<TRow> | Partial<TRow> {
     if (rowFilter === undefined) {
         return Object.keys(shard).
             map(k => k as keyof TShard).
             reduce(
                 (f, k) => Object.assign(f, { [k]: shard[k] }),
-                {} as Partial<TShard>,
+                {} as Partial<TRow>,
         );
     }
     if (typeof rowFilter === "function") {
@@ -133,7 +133,7 @@ function resolveIndexDescriptorRowFilter<TShard>(
     if (Array.isArray(rowFilter)) {
         return rowFilter.reduce(
             (f, k) => Object.assign(f, { [k]: shard[k] }),
-            {} as Partial<TShard>,
+            {} as Partial<TRow>,
         );
     }
     throw new Error(`invalid rowFilter ${rowFilter}`);
