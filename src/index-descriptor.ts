@@ -8,7 +8,7 @@ export type IndexDescriptorShardKey<TShard> =
     Array<keyof TShard> |
     ((shard: TShard) => PropertyKey[]);
 
-export type IndexDescriptorRowFilter<TShard, TRow> =
+export type IndexDescriptorShardFilter<TShard, TRow> =
     Array<keyof TShard> |
     ((shard: TShard) => RowFilter<TRow> | Partial<TRow>);
 
@@ -19,6 +19,6 @@ export interface IndexDescriptor<
     extends TableDescriptor<TRow> {
     readonly rowKey: IndexDescriptorRowKey<TRow>;
     readonly shardKey?: IndexDescriptorShardKey<TShard>;
-    readonly rowFilter?: IndexDescriptorRowFilter<TShard, TRow>;
+    readonly shardFilter?: IndexDescriptorShardFilter<TShard, TRow>;
 
 }

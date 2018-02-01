@@ -3,7 +3,7 @@ import { Disposable, DisposableComposition, using } from "using-disposable";
 import { transform, Transformer } from "./deep";
 import {
     IndexDescriptor,
-    IndexDescriptorRowFilter, IndexDescriptorRowKey, IndexDescriptorShardKey,
+    IndexDescriptorRowKey, IndexDescriptorShardFilter, IndexDescriptorShardKey,
 } from "./index-descriptor";
 import { RowChangeListener } from "./table-data-client";
 import { TableDataPool } from "./table-data-pool";
@@ -62,7 +62,7 @@ export class TableIndexClient<
             await tableDataPool.lease({ descriptor });
         this.registerDisposable(dataTable);
 
-        const filter = resolveIndexDescriptorRowFilter(shard, this.descriptor.rowFilter);
+        const filter = resolveIndexDescriptorShardFilter(shard, this.descriptor.shardFilter);
         const listener =
             await dataTable.listen(filter, this.handleRowChange);
         this.registerDisposable(listener);
@@ -115,11 +115,11 @@ function resolveIndexDescriptorRowKey<TRow>(
     throw new Error(`invalid rowKey ${rowKey}`);
 }
 
-function resolveIndexDescriptorRowFilter<TShard, TRow>(
+function resolveIndexDescriptorShardFilter<TShard, TRow>(
     shard: TShard,
-    rowFilter?: IndexDescriptorRowFilter<TShard, TRow>,
+    shardFilter?: IndexDescriptorShardFilter<TShard, TRow>,
 ): RowFilter<TRow> | Partial<TRow> {
-    if (rowFilter === undefined) {
+    if (shardFilter === undefined) {
         return Object.keys(shard).
             map(k => k as keyof TShard).
             reduce(
@@ -127,14 +127,14 @@ function resolveIndexDescriptorRowFilter<TShard, TRow>(
                 {} as Partial<TRow>,
         );
     }
-    if (typeof rowFilter === "function") {
-        return rowFilter(shard);
+    if (typeof shardFilter === "function") {
+        return shardFilter(shard);
     }
-    if (Array.isArray(rowFilter)) {
-        return rowFilter.reduce(
+    if (Array.isArray(shardFilter)) {
+        return shardFilter.reduce(
             (f, k) => Object.assign(f, { [k]: shard[k] }),
             {} as Partial<TRow>,
         );
     }
-    throw new Error(`invalid rowFilter ${rowFilter}`);
+    throw new Error(`invalid shardFilter ${shardFilter}`);
 }
