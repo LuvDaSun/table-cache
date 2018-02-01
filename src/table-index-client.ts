@@ -3,7 +3,7 @@ import { Disposable, DisposableComposition, using } from "using-disposable";
 import { transform, Transformer } from "./deep";
 import {
     IndexDescriptor,
-    IndexDescriptorPath, IndexDescriptorRowFilter, IndexDescriptorShardKey,
+    IndexDescriptorRowFilter, IndexDescriptorRowKey, IndexDescriptorShardKey,
 } from "./index-descriptor";
 import { RowChangeListener } from "./table-data-client";
 import { TableDataPool } from "./table-data-pool";
@@ -49,10 +49,10 @@ export class TableIndexClient<
         return { dispose };
     }
 
-    private getIndexStatePath(
+    private getRowKey(
         row: TRow,
     ): PropertyKey[] {
-        return resolveIndexDescriptorPath(row, this.descriptor.path);
+        return resolveIndexDescriptorRowKey(row, this.descriptor.rowKey);
     }
 
     private async initialize() {
@@ -74,8 +74,8 @@ export class TableIndexClient<
     private initializeCache(rows: TRow[]) {
         transform(this.state, ({ set }) => {
             for (const row of rows) {
-                const path = this.getIndexStatePath(row);
-                set(path, row);
+                const rowKey = this.getRowKey(row);
+                set(rowKey, row);
             }
         }, true);
     }
@@ -86,11 +86,11 @@ export class TableIndexClient<
 
     private handleRowChange: RowChangeListener<TRow> =
         (newRow, oldRow) => {
-            const oldPath = oldRow && this.getIndexStatePath(oldRow);
-            const newPath = newRow && this.getIndexStatePath(newRow);
+            const oldKey = oldRow && this.getRowKey(oldRow);
+            const newKey = newRow && this.getRowKey(newRow);
             const transformer = ({ set }: Transformer) => {
-                if (oldPath !== null) set(oldPath, null);
-                if (newPath !== null) set(newPath, newRow);
+                if (oldKey !== null) set(oldKey, null);
+                if (newKey !== null) set(newKey, newRow);
             };
 
             const patch = {} as TIndex;
@@ -102,17 +102,17 @@ export class TableIndexClient<
         }
 }
 
-function resolveIndexDescriptorPath<TRow>(
+function resolveIndexDescriptorRowKey<TRow>(
     row: TRow,
-    path: IndexDescriptorPath<TRow>,
+    rowKey: IndexDescriptorRowKey<TRow>,
 ): PropertyKey[] {
-    if (typeof path === "function") {
-        return path(row);
+    if (typeof rowKey === "function") {
+        return rowKey(row);
     }
-    if (Array.isArray(path)) {
-        return path.map(key => String(row[key]));
+    if (Array.isArray(rowKey)) {
+        return rowKey.map(key => String(row[key]));
     }
-    throw new Error(`invalid path ${path}`);
+    throw new Error(`invalid rowKey ${rowKey}`);
 }
 
 function resolveIndexDescriptorRowFilter<TShard, TRow>(

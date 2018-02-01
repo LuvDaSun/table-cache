@@ -69,7 +69,7 @@ const OneIndexDescriptor: IndexDescriptor<
     OneIndexShard> = {
         schema: "public",
         table: "one",
-        path: ["id"],
+        rowKey: ["id"],
     };
 
 test("TableDataClient", t =>

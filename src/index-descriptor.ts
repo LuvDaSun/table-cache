@@ -1,6 +1,6 @@
 import { RowFilter, TableDescriptor } from "table-access";
 
-export type IndexDescriptorPath<TRow> =
+export type IndexDescriptorRowKey<TRow> =
     Array<keyof TRow> |
     ((row: TRow) => PropertyKey[]);
 
@@ -17,7 +17,7 @@ export interface IndexDescriptor<
     TState extends object,
     TShard extends object = {}>
     extends TableDescriptor<TRow> {
-    readonly path: IndexDescriptorPath<TRow>;
+    readonly rowKey: IndexDescriptorRowKey<TRow>;
     readonly shardKey?: IndexDescriptorShardKey<TShard>;
     readonly rowFilter?: IndexDescriptorRowFilter<TShard, TRow>;
 
