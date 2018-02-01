@@ -87,13 +87,19 @@ test("TableDataClient", t =>
                         );
 
                         await pool.query(`
-                        DELETE FROM  public.one
+                        DELETE FROM public.one
                         WHERE id = 1
                         `);
                         t.deepEqual(
                             await ch.receive(),
                             [null, { id: 1, name: "four" }],
                         );
+
+                        t.deepEqual(
+                            await tdc.fetch({ name: "four" }),
+                            [{ id: 4, name: "four" }],
+                        );
+
                     },
                 ),
             ),

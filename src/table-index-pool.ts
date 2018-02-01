@@ -25,7 +25,10 @@ export class TableIndexPool extends ObjectPool<
                 descriptor,
                 shard,
             ),
-            ({ descriptor, shard }) => [getSymbolForObject(descriptor), ...descriptor.makeShardKey(shard)],
+            ({ descriptor, shard }) => [
+                getSymbolForObject(descriptor),
+                ...descriptor.makeShardKey(shard),
+            ],
         );
     }
 }
