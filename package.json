@@ -25,13 +25,13 @@
     "tape": "^4.8.0",
     "ts-node": "^4.1.0",
     "tslint": "^5.8.0",
-    "typescript": "^2.6.2"
+    "typescript": "^2.7.1"
   },
   "dependencies": {
     "@types/pg": "^7.4.1",
     "pg": "^7.4.1",
-    "table-access": "0.0.0",
+    "table-access": "0.0.5",
     "tslib": "^1.9.0",
-    "using-disposable": "^1.7.6"
+    "using-disposable": "^1.7.8"
   }
 }

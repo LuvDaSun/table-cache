@@ -1,1 +1,1 @@
-export * from "./ok";
+export * from "./index-descriptor";
