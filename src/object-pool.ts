@@ -12,8 +12,8 @@ export type KeyFactory<
     (args: TArg) => PropertyKey[];
 
 interface ObjectPoolCacheItem<TObject extends Disposable> {
-    proxy: TObject;
-    leaseKeys: Set<symbol>;
+    instance: TObject;
+    proxies: Set<TObject>;
 }
 
 export class ObjectPool<
@@ -32,34 +32,36 @@ export class ObjectPool<
         const cacheKey = this.keyFactory(arg);
         const cachePath = ["cache", ...cacheKey];
         let cacheItem: ObjectPoolCacheItem<TObject> | null = getIn(this, cachePath, null);
-        const leaseKey = Symbol();
+        let instance: TObject;
         if (cacheItem === null) {
-            const instance = await this.objectFactory(arg);
+            instance = await this.objectFactory(arg);
             this.registerDisposable(instance);
-            const dispose = async () => {
-                if (cacheItem === null) throw new Error(`cacheItem is null`);
-                cacheItem.leaseKeys.delete(leaseKey);
-                if (cacheItem.leaseKeys.size > 0) return;
-                destroyIn(this, cachePath, true);
-                await instance.dispose();
-                this.deregisterDisposable(instance);
-            };
-            const proxyHandler: ProxyHandler<TObject> = {
-                get: (target: TObject, propertyKey: PropertyKey, receiver: any): any => {
-                    if (propertyKey !== "dispose") return Reflect.get(target, propertyKey, receiver);
-                    return dispose;
-                },
-            };
-            const proxy = new Proxy(instance, proxyHandler);
-
             cacheItem = {
-                proxy,
-                leaseKeys: new Set<symbol>(),
+                instance,
+                proxies: new Set<TObject>(),
             };
             setIn(this, cachePath, cacheItem, true);
         }
-        cacheItem.leaseKeys.add(leaseKey);
-        return cacheItem.proxy;
+        else {
+            instance = cacheItem.instance;
+        }
+        const dispose = async () => {
+            if (cacheItem === null) throw new Error(`cacheItem is null`);
+            cacheItem.proxies.delete(proxy);
+            if (cacheItem.proxies.size > 0) return;
+            destroyIn(this, cachePath, true);
+            await instance.dispose();
+            this.deregisterDisposable(instance);
+        };
+        const proxyHandler: ProxyHandler<TObject> = {
+            get: (target: TObject, propertyKey: PropertyKey, receiver: any): any => {
+                if (propertyKey !== "dispose") return Reflect.get(target, propertyKey, receiver);
+                return dispose;
+            },
+        };
+        const proxy = new Proxy(instance, proxyHandler);
+        cacheItem.proxies.add(proxy);
+        return proxy;
     }
 
 }

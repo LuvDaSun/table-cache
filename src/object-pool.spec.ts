@@ -7,6 +7,7 @@ class Dummy implements Disposable {
         return new Dummy(value);
     }
 
+    public key = Symbol();
     public isDisposed = false;
     private constructor(public value: string) {
 
@@ -26,7 +27,7 @@ test("object-pool", async t => {
 
     const d = await pool.lease(["a"]);
     const d1 = await pool.lease(["a"]);
-    t.equal(d1, d);
+    t.equal(d1.key, d.key);
 
     await d.dispose();
     t.equal(d.isDisposed, false);
@@ -35,15 +36,17 @@ test("object-pool", async t => {
     t.equal(d.isDisposed, false);
 
     const d2 = await pool.lease(["a"]);
-    t.equal(d2, d);
+    t.equal(d2.key, d.key);
     t.equal(d.isDisposed, false);
 
     await d1.dispose();
     await d2.dispose();
     t.equal(d.isDisposed, true);
+    t.equal(d1.key, d.key);
+    t.equal(d2.key, d.key);
 
     const d3 = await pool.lease(["a"]);
-    t.notEqual(d3, d);
+    t.notEqual(d3.key, d.key);
 
     pool.dispose();
     t.equal(d3.isDisposed, true);
