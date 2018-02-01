@@ -8,11 +8,11 @@ test("DatabaseNotificationClient", t =>
     using(DatabaseTestContext.create(""), ({ pool }) =>
         using(
             DatabaseNotificationClient.create(pool),
-            async client => {
+            async dnc => {
                 const ch = new Channel();
-                client.listen((channel, payload) => ch.send({ channel, payload }));
+                dnc.listen((channel, payload) => ch.send({ channel, payload }));
 
-                await client.client.query("LISTEN one;");
+                await dnc.client.query("LISTEN one;");
 
                 await pool.query(`NOTIFY one;`);
                 t.deepEqual(

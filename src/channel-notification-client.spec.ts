@@ -7,12 +7,12 @@ import { DatabaseNotificationPool } from "./database-notification-pool";
 
 test("ChannelNotificationClient", t =>
     using(DatabaseTestContext.create(""), ({ pool }) =>
-        using(new DatabaseNotificationPool(pool), databaseNotificationPool =>
+        using(new DatabaseNotificationPool(pool), dnp =>
             using(
-                ChannelNotificationClient.create(databaseNotificationPool, "one"),
-                async channelNotificationClient => {
+                ChannelNotificationClient.create(dnp, "one"),
+                async cnc => {
                     const ch = new Channel();
-                    channelNotificationClient.listen(payload => ch.send(payload));
+                    cnc.listen(payload => ch.send(payload));
 
                     await pool.query(`NOTIFY one;`);
                     t.deepEqual(
