@@ -13,7 +13,7 @@ export type IndexDescriptorRowFilter<TShard> =
     ((shard: TShard) => RowFilter<TShard> | Partial<TShard>);
 
 export interface IndexDescriptor<
-    TRow extends TShard,
+    TRow extends object,
     TState extends object,
     TShard extends object = {}>
     extends TableDescriptor<TRow> {

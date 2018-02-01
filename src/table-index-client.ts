@@ -12,13 +12,13 @@ export type TableIndexPatchListener<TIndexModel> =
     (patch: TIndexModel) => void;
 
 export class TableIndexClient<
-    TRow extends TShard,
+    TRow extends object,
     TIndex extends object,
     TShard extends object>
     extends DisposableComposition {
 
     public static async create<
-        TRow extends TShard,
+        TRow extends object,
         TIndex extends object,
         TShard extends object>(
             tableDataPool: TableDataPool,
