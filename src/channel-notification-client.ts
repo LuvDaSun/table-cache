@@ -45,7 +45,7 @@ export class ChannelNotificationClient extends DisposableComposition {
         this.registerDisposable(listener);
     }
 
-    private notificationHandler = (channel: string, payload: object) => {
+    private notificationHandler = (channel: string, payload: object | null) => {
         if (channel !== this.channel) return;
         this.notifyListeners(payload);
     }
