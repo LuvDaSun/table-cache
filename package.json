@@ -21,6 +21,7 @@
     "@types/blue-tape": "^0.1.31",
     "@types/tape": "^4.2.31",
     "blue-tape": "^1.0.0",
+    "go-channel": "0.0.2",
     "nyc": "^11.4.1",
     "tape": "^4.8.0",
     "ts-node": "^4.1.0",
@@ -30,7 +31,7 @@
   "dependencies": {
     "@types/pg": "^7.4.1",
     "pg": "^7.4.1",
-    "table-access": "0.0.5",
+    "table-access": "0.0.6",
     "tslib": "^1.9.0",
     "using-disposable": "^1.7.8"
   }

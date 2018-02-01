@@ -1,7 +1,7 @@
 import * as pg from "pg";
 import { Disposable, DisposableComposition } from "using-disposable";
 
-export type NotificationListener = (channel: string, payload: object) => void;
+export type NotificationListener = (channel: string, payload: object | null) => void;
 
 export class DatabaseNotificationClient extends DisposableComposition {
 
@@ -45,11 +45,19 @@ export class DatabaseNotificationClient extends DisposableComposition {
         payload: string;
     }) => {
         const channel = message.channel;
-        const payload = JSON.parse(message.payload);
+        let payload: object | null;
+        try {
+            payload = message.payload === "" ?
+                null :
+                JSON.parse(message.payload);
+        }
+        catch (err) {
+            payload = null;
+        }
         this.notifyListeners(channel, payload);
     }
 
-    private notifyListeners(channel: string, payload: object) {
+    private notifyListeners(channel: string, payload: object | null) {
         this.listeners.forEach(listener => listener(channel, payload));
     }
 
