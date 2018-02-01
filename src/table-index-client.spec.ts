@@ -70,8 +70,6 @@ const OneIndexDescriptor: IndexDescriptor<
         schema: "public",
         table: "one",
         path: ["id"],
-        makeRowFilter: ({ cluster }) => ({ cluster }),
-        makeShardKey: ({ cluster }) => [cluster],
     };
 
 test("TableDataClient", t =>

@@ -1,7 +1,10 @@
 import { RowFilter } from "table-access";
 import { Disposable, DisposableComposition, using } from "using-disposable";
 import { transform, Transformer } from "./deep";
-import { IndexDescriptor } from "./index-descriptor";
+import {
+    IndexDescriptor,
+    IndexDescriptorPath, IndexDescriptorRowFilter, IndexDescriptorShardKey,
+} from "./index-descriptor";
 import { RowChangeListener } from "./table-data-client";
 import { TableDataPool } from "./table-data-pool";
 
@@ -9,13 +12,13 @@ export type TableIndexPatchListener<TIndexModel> =
     (patch: TIndexModel) => void;
 
 export class TableIndexClient<
-    TRow extends object,
+    TRow extends TShard,
     TIndex extends object,
     TShard extends object>
     extends DisposableComposition {
 
     public static async create<
-        TRow extends object,
+        TRow extends TShard,
         TIndex extends object,
         TShard extends object>(
             tableDataPool: TableDataPool,
@@ -49,7 +52,7 @@ export class TableIndexClient<
     private getIndexStatePath(
         row: TRow,
     ): PropertyKey[] {
-        return this.descriptor.path.map(key => String(row[key]));
+        return resolveIndexDescriptorPath(row, this.descriptor.path);
     }
 
     private async initialize() {
@@ -59,7 +62,7 @@ export class TableIndexClient<
             await tableDataPool.lease({ descriptor });
         this.registerDisposable(dataTable);
 
-        const filter = this.descriptor.makeRowFilter(shard);
+        const filter = resolveIndexDescriptorRowFilter(shard, this.descriptor.rowFilter);
         const listener =
             await dataTable.listen(filter, this.handleRowChange);
         this.registerDisposable(listener);
@@ -97,4 +100,41 @@ export class TableIndexClient<
 
             this.notifyListeners(patch);
         }
+}
+
+function resolveIndexDescriptorPath<TRow>(
+    row: TRow,
+    path: IndexDescriptorPath<TRow>,
+): PropertyKey[] {
+    if (typeof path === "function") {
+        return path(row);
+    }
+    if (Array.isArray(path)) {
+        return path.map(key => String(row[key]));
+    }
+    throw new Error(`invalid path ${path}`);
+}
+
+function resolveIndexDescriptorRowFilter<TShard>(
+    shard: TShard,
+    rowFilter?: IndexDescriptorRowFilter<TShard>,
+): RowFilter<TShard> | Partial<TShard> {
+    if (rowFilter === undefined) {
+        return Object.keys(shard).
+            map(k => k as keyof TShard).
+            reduce(
+                (f, k) => Object.assign(f, { [k]: shard[k] }),
+                {} as Partial<TShard>,
+        );
+    }
+    if (typeof rowFilter === "function") {
+        return rowFilter(shard);
+    }
+    if (Array.isArray(rowFilter)) {
+        return rowFilter.reduce(
+            (f, k) => Object.assign(f, { [k]: shard[k] }),
+            {} as Partial<TShard>,
+        );
+    }
+    throw new Error(`invalid rowFilter ${rowFilter}`);
 }
