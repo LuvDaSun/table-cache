@@ -3,12 +3,12 @@ import { DatabaseNotificationClient } from "./database-notification-client";
 import { ObjectPool } from "./object-pool";
 
 // tslint:disable-next-line:no-empty-interface
-export interface ChannelNotificationArgs {
+export interface DatabaseNotificationArgs {
 }
 
 export class DatabaseNotificationPool extends ObjectPool<
     DatabaseNotificationClient,
-    ChannelNotificationArgs> {
+    DatabaseNotificationArgs> {
 
     constructor(pool: pg.Pool) {
         super(
