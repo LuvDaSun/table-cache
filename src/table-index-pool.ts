@@ -18,11 +18,11 @@ export class TableIndexPool extends ObjectPool<
     TableIndexArg> {
 
     constructor(
-        tableCachePool: TableDataPool,
+        tableDataPool: TableDataPool,
     ) {
         super(
             ({ descriptor, shard }) => TableIndexClient.create(
-                tableCachePool,
+                tableDataPool,
                 descriptor,
                 shard,
             ),
