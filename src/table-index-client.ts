@@ -1,15 +1,17 @@
 import { RowFilter } from "table-access";
 import { Disposable, DisposableComposition, using } from "using-disposable";
+import { arrayEqual } from "./array";
 import { transform, Transformer } from "./deep";
 import {
     IndexDescriptor,
     IndexDescriptorRowKey, IndexDescriptorShardFilter, IndexDescriptorShardKey,
 } from "./index-descriptor";
+import { toPropertyKey } from "./property-key";
 import { RowChangeListener } from "./table-data-client";
 import { TableDataPool } from "./table-data-pool";
 
-export type TableIndexPatchListener<TIndexModel> =
-    (patch: TIndexModel) => void;
+export type TableIndexListener =
+    (changedKey: PropertyKey[]) => void;
 
 export class TableIndexClient<
     TRow extends object,
@@ -31,7 +33,7 @@ export class TableIndexClient<
     }
 
     public readonly state = {} as TIndex;
-    private readonly listeners = new Set<TableIndexPatchListener<TIndex>>();
+    private readonly listeners = new Set<TableIndexListener>();
 
     private constructor(
         private readonly tableDataPool: TableDataPool,
@@ -41,7 +43,7 @@ export class TableIndexClient<
         super();
     }
 
-    public listen(listener: TableIndexPatchListener<TIndex>): Disposable {
+    public listen(listener: TableIndexListener): Disposable {
         this.listeners.add(listener);
         const dispose = () => {
             this.listeners.delete(listener);
@@ -80,25 +82,23 @@ export class TableIndexClient<
         }, true);
     }
 
-    private notifyListeners(patch: TIndex) {
-        this.listeners.forEach(listener => listener(patch));
+    private notifyListeners(changedKey: PropertyKey[]) {
+        this.listeners.forEach(listener => listener(changedKey));
     }
 
     private handleRowChange: RowChangeListener<TRow> =
         (newRow, oldRow) => {
             const oldKey = oldRow && this.getRowKey(oldRow);
             const newKey = newRow && this.getRowKey(newRow);
-            const transformer = ({ set }: Transformer) => {
-                if (oldKey !== null) set(oldKey, null);
+            const keysEqual = oldKey && newKey && arrayEqual(oldKey, newKey);
+
+            transform(this.state, ({ set }: Transformer) => {
+                if (oldKey !== null && !keysEqual) set(oldKey, null);
                 if (newKey !== null) set(newKey, newRow);
-            };
+            }, true);
 
-            const patch = {} as TIndex;
-
-            transform(this.state, transformer, true);
-            transform(patch, transformer, true);
-
-            this.notifyListeners(patch);
+            if (oldKey !== null && !keysEqual) this.notifyListeners(oldKey);
+            if (newKey !== null) this.notifyListeners(newKey);
         }
 }
 
@@ -110,7 +110,7 @@ function resolveIndexDescriptorRowKey<TRow>(
         return rowKey(row);
     }
     if (Array.isArray(rowKey)) {
-        return rowKey.map(key => String(row[key]));
+        return rowKey.map(key => toPropertyKey(row[key]));
     }
     throw new Error(`invalid rowKey ${rowKey}`);
 }

@@ -4,6 +4,7 @@ import { DatabaseNotificationPool } from "./database-notification-pool";
 import { IndexDescriptor, IndexDescriptorShardKey } from "./index-descriptor";
 import { ObjectPool } from "./object-pool";
 import { getSymbolForObject } from "./object-symbol";
+import { toPropertyKey } from "./property-key";
 import { TableDataPool } from "./table-data-pool";
 import { TableIndexClient } from "./table-index-client";
 
@@ -41,7 +42,7 @@ function resolveIndexDescriptorShardKey<TShard>(
         return Object.keys(shard).
             sort().
             map(k => k as keyof TShard).
-            map(key => String(shard[key]));
+            map(key => toPropertyKey(shard[key]));
     }
     if (typeof shardKey === "function") {
         return shardKey(shard);

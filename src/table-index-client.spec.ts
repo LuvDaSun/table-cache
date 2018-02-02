@@ -72,7 +72,7 @@ const OneIndexDescriptor: IndexDescriptor<
         rowKey: ["id"],
     };
 
-test("TableDataClient", t =>
+test("TableIndexClient", t =>
     using(DatabaseTestContext.create(sql), ({ pool }) =>
         using(new DatabaseNotificationPool(pool), dnp =>
             using(new ChannelNotificationPool(dnp), cnp =>
@@ -85,7 +85,7 @@ test("TableDataClient", t =>
                         ),
                         async tic => {
                             const ch = new Channel();
-                            tic.listen(patch => ch.send(patch));
+                            tic.listen(key => ch.send(key));
 
                             t.deepEqual(tic.state, {
                                 1: { cluster: 100, id: 1, name: "one" },
@@ -97,9 +97,7 @@ test("TableDataClient", t =>
                             `);
                             t.deepEqual(
                                 await ch.receive(),
-                                {
-                                    3: { cluster: 100, id: 3, name: "three" },
-                                },
+                                [3],
                             );
 
                             await pool.query(`
@@ -109,9 +107,7 @@ test("TableDataClient", t =>
                             `);
                             t.deepEqual(
                                 await ch.receive(),
-                                {
-                                    1: { cluster: 100, id: 1, name: "four" },
-                                },
+                                [1],
                             );
 
                             await pool.query(`
@@ -120,9 +116,7 @@ test("TableDataClient", t =>
                             `);
                             t.deepEqual(
                                 await ch.receive(),
-                                {
-                                    1: null,
-                                },
+                                [1],
                             );
 
                             t.deepEqual(tic.state, {
@@ -137,9 +131,7 @@ test("TableDataClient", t =>
                             `);
                             t.deepEqual(
                                 await ch.receive(),
-                                {
-                                    2: { cluster: 100, id: 2, name: "two" },
-                                },
+                                [2],
                             );
 
                             await pool.query(`
@@ -149,9 +141,7 @@ test("TableDataClient", t =>
                             `);
                             t.deepEqual(
                                 await ch.receive(),
-                                {
-                                    3: null,
-                                },
+                                [3],
                             );
 
                             t.deepEqual(tic.state, {
