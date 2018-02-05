@@ -1,8 +1,8 @@
+import { SingletonPool } from "singleton-pool";
 import { TableDescriptor } from "table-access";
 import { ChannelNotificationPool } from "./channel-notification-pool";
 import { DatabaseNotificationPool } from "./database-notification-pool";
 import { IndexDescriptor, IndexDescriptorShardKey } from "./index-descriptor";
-import { ObjectPool } from "./object-pool";
 import { getSymbolForObject } from "./object-symbol";
 import { toPropertyKey } from "./property-key";
 import { TableDataPool } from "./table-data-pool";
@@ -13,7 +13,7 @@ export interface TableIndexArg {
     shard: any;
 }
 
-export class TableIndexPool extends ObjectPool<
+export class TableIndexPool extends SingletonPool<
     TableIndexClient<any, any, any>,
     TableIndexArg> {
 

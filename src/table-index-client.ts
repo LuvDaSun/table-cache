@@ -1,7 +1,7 @@
+import { transform, Transformer } from "deepkit";
 import { RowFilter } from "table-access";
 import { Disposable, DisposableComposition, using } from "using-disposable";
 import { arrayEqual } from "./array";
-import { transform, Transformer } from "./deep";
 import {
     IndexDescriptor,
     IndexDescriptorRowKey, IndexDescriptorShardFilter, IndexDescriptorShardKey,

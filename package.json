@@ -25,12 +25,14 @@
     "nyc": "^11.4.1",
     "tape": "^4.8.0",
     "ts-node": "^4.1.0",
-    "tslint": "^5.8.0",
+    "tslint": "^5.9.1",
     "typescript": "^2.7.1"
   },
   "dependencies": {
     "@types/pg": "^7.4.1",
+    "deepkit": "0.0.1",
     "pg": "^7.4.1",
+    "singleton-pool": "0.0.1",
     "table-access": "0.0.6",
     "tslib": "^1.9.0",
     "using-disposable": "^1.7.8"

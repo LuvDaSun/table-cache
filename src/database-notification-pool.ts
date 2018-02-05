@@ -1,12 +1,12 @@
 import * as pg from "pg";
+import { SingletonPool } from "singleton-pool";
 import { DatabaseNotificationClient } from "./database-notification-client";
-import { ObjectPool } from "./object-pool";
 
 // tslint:disable-next-line:no-empty-interface
 export interface DatabaseNotificationArgs {
 }
 
-export class DatabaseNotificationPool extends ObjectPool<
+export class DatabaseNotificationPool extends SingletonPool<
     DatabaseNotificationClient,
     DatabaseNotificationArgs> {
 

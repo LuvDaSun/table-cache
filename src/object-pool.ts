@@ -1,6 +1,6 @@
 import * as assert from "assert";
+import { destroyIn, getIn, setIn } from "deepkit";
 import { Disposable, DisposableComposition } from "using-disposable";
-import { destroyIn, getIn, setIn } from "./deep";
 
 export type ObjectFactory<
     TObject extends Disposable,
