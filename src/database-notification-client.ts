@@ -13,7 +13,7 @@ export class DatabaseNotificationClient extends DisposableComposition {
         return instance;
     }
 
-    public client: pg.Client = undefined as any;
+    public client!: pg.Client;
     private readonly listeners = new Set<NotificationListener>();
     private constructor(
         private pool: pg.Pool,
