@@ -1,7 +1,7 @@
 import * as test from "blue-tape";
 import { Channel } from "go-channel";
 import { DatabaseTestContext } from "table-access";
-import { using } from "using-disposable";
+import { using } from "dispose";
 import { ChannelNotificationClient } from "./channel-notification-client";
 import { DatabaseNotificationPool } from "./database-notification-pool";
 

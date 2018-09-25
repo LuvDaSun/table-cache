@@ -1,5 +1,5 @@
 import * as pg from "pg";
-import { Disposable, DisposableComposition } from "using-disposable";
+import { Disposable, DisposableComposition } from "dispose";
 
 export type NotificationListener = (channel: string, payload: object | null) => void;
 
@@ -13,7 +13,7 @@ export class DatabaseNotificationClient extends DisposableComposition {
         return instance;
     }
 
-    public client!: pg.Client;
+    public client!: pg.PoolClient;
     private readonly listeners = new Set<NotificationListener>();
     private constructor(
         private pool: pg.Pool,

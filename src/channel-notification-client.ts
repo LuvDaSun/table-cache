@@ -1,4 +1,4 @@
-import { Disposable, DisposableComposition } from "using-disposable";
+import { Disposable, DisposableComposition } from "dispose";
 import { DatabaseNotificationPool } from "./database-notification-pool";
 
 export type ChannelNotificationListener = (payload: any) => void;
