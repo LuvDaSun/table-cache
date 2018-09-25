@@ -1,7 +1,8 @@
 import * as test from "blue-tape";
-import { Channel } from "go-channel";
-import { DatabaseTestContext, TableDescriptor } from "table-access";
 import { using } from "dispose";
+import { Channel } from "go-channel";
+import { PgContext } from "pg-context";
+import { TableDescriptor } from "table-access";
 import { ChannelNotificationPool } from "./channel-notification-pool";
 import { DatabaseNotificationPool } from "./database-notification-pool";
 import { IndexDescriptor } from "./main";
@@ -51,9 +52,9 @@ interface OneTableRow {
 
 const OneTableDescriptor: TableDescriptor<
     OneTableRow> = {
-        schema: "public",
-        table: "one",
-    };
+    schema: "public",
+    table: "one",
+};
 
 interface OneIndexState {
     [id: number]: OneTableRow;
@@ -67,13 +68,13 @@ const OneIndexDescriptor: IndexDescriptor<
     OneTableRow,
     OneIndexState,
     OneIndexShard> = {
-        schema: "public",
-        table: "one",
-        rowKey: ["id"],
-    };
+    schema: "public",
+    table: "one",
+    rowKey: ["id"],
+};
 
 test("TableIndexClient", t =>
-    using(DatabaseTestContext.create(sql), ({ pool }) =>
+    using(PgContext.create(sql), ({ pool }) =>
         using(new DatabaseNotificationPool(pool), dnp =>
             using(new ChannelNotificationPool(dnp), cnp =>
                 using(new TableDataPool(dnp, cnp, "row"), tdp =>

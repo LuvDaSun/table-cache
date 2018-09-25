@@ -23,6 +23,7 @@
     "blue-tape": "^1.0.0",
     "go-channel": "0.0.2",
     "nyc": "^13.0.1",
+    "pg-context": "^1.0.13",
     "tape": "^4.9.1",
     "ts-node": "^7.0.1",
     "tslint": "^5.11.0",
@@ -34,7 +35,7 @@
     "dispose": "^1.0.3",
     "pg": "^7.4.3",
     "singleton-pool": "^0.1.2",
-    "table-access": "^0.1.0",
+    "table-access": "^0.2.0",
     "tslib": "^1.9.3"
   }
 }

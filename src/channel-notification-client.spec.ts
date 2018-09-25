@@ -1,12 +1,12 @@
 import * as test from "blue-tape";
-import { Channel } from "go-channel";
-import { DatabaseTestContext } from "table-access";
 import { using } from "dispose";
+import { Channel } from "go-channel";
+import { PgContext } from "pg-context";
 import { ChannelNotificationClient } from "./channel-notification-client";
 import { DatabaseNotificationPool } from "./database-notification-pool";
 
 test("ChannelNotificationClient", t =>
-    using(DatabaseTestContext.create(""), ({ pool }) =>
+    using(PgContext.create(""), ({ pool }) =>
         using(new DatabaseNotificationPool(pool), dnp =>
             using(
                 ChannelNotificationClient.create(dnp, "one"),

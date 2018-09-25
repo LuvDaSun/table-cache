@@ -1,7 +1,8 @@
 import * as test from "blue-tape";
-import { Channel } from "go-channel";
-import { DatabaseTestContext, TableDescriptor } from "table-access";
 import { using } from "dispose";
+import { Channel } from "go-channel";
+import { PgContext } from "pg-context";
+import { TableDescriptor } from "table-access";
 import { ChannelNotificationPool } from "./channel-notification-pool";
 import { DatabaseNotificationPool } from "./database-notification-pool";
 import { TableDataClient } from "./table-data-client";
@@ -51,7 +52,7 @@ const OneTableDescriptor: TableDescriptor<OneTableRow> = {
 };
 
 test("TableDataClient", t =>
-    using(DatabaseTestContext.create(sql), ({ pool }) =>
+    using(PgContext.create(sql), ({ pool }) =>
         using(new DatabaseNotificationPool(pool), dnp =>
             using(new ChannelNotificationPool(dnp), cnp =>
                 using(
