@@ -1,6 +1,5 @@
-import * as pg from "pg";
-import { makeRowFilterFunction, makeRowFilterPg, RowFilter, TableDescriptor } from "table-access";
 import { Disposable, DisposableComposition, using } from "dispose";
+import { makeRowFilterFunction, makeRowFilterPg, RowFilter, TableDescriptor } from "table-access";
 import { ChannelNotificationPool } from "./channel-notification-pool";
 import { DatabaseNotificationPool } from "./database-notification-pool";
 

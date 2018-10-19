@@ -1,4 +1,3 @@
-import * as pg from "pg";
 import { SingletonPool } from "singleton-pool";
 import { ChannelNotificationClient } from "./channel-notification-client";
 import { DatabaseNotificationPool } from "./database-notification-pool";

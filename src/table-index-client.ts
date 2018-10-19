@@ -1,11 +1,8 @@
 import { transform, Transformer } from "deepkit";
+import { Disposable, DisposableComposition } from "dispose";
 import { RowFilter } from "table-access";
-import { Disposable, DisposableComposition, using } from "dispose";
 import { arrayEqual } from "./array";
-import {
-    IndexDescriptor,
-    IndexDescriptorRowKey, IndexDescriptorShardFilter, IndexDescriptorShardKey,
-} from "./index-descriptor";
+import { IndexDescriptor, IndexDescriptorRowKey, IndexDescriptorShardFilter } from "./index-descriptor";
 import { toPropertyKey } from "./property-key";
 import { RowChangeListener } from "./table-data-client";
 import { TableDataPool } from "./table-data-pool";
@@ -125,7 +122,7 @@ function resolveIndexDescriptorShardFilter<TShard, TRow>(
             reduce(
                 (f, k) => Object.assign(f, { [k]: shard[k] }),
                 {} as Partial<TRow>,
-        );
+            );
     }
     if (typeof shardFilter === "function") {
         return shardFilter(shard);

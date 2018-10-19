@@ -1,5 +1,5 @@
-import * as pg from "pg";
 import { Disposable, DisposableComposition } from "dispose";
+import * as pg from "pg";
 
 export type NotificationListener = (channel: string, payload: object | null) => void;
 

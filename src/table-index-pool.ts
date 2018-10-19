@@ -1,7 +1,4 @@
 import { SingletonPool } from "singleton-pool";
-import { TableDescriptor } from "table-access";
-import { ChannelNotificationPool } from "./channel-notification-pool";
-import { DatabaseNotificationPool } from "./database-notification-pool";
 import { IndexDescriptor, IndexDescriptorShardKey } from "./index-descriptor";
 import { getSymbolForObject } from "./object-symbol";
 import { toPropertyKey } from "./property-key";
